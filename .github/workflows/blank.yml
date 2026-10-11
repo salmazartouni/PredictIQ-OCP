@@ -1,0 +1,34 @@
+name: Python CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check-python:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Recuperer le projet
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verifier les fichiers Python
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          files = list(Path(".").rglob("*.py"))
+          assert files, "Aucun fichier Python trouve"
+
+          for file in files:
+              ast.parse(file.read_text(encoding="utf-8"), filename=str(file))
+
+          print(f"{len(files)} fichiers Python verifies")
+          PY
